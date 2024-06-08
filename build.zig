@@ -1,3 +1,4 @@
+const raylib = @import("raylib/build.zig");
 const std = @import("std");
 
 // Although this function looks imperative, note that its job is to
@@ -35,6 +36,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+
+    raylib.addTo(b, exe, target.query, optimize, .{});
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
