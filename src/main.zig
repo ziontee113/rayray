@@ -15,6 +15,6 @@ pub fn main() !void {
         raylib.ClearBackground(raylib.BLACK);
         raylib.DrawFPS(10, 10);
 
-        raylib.DrawText("hello world!", 100, 100, 20, raylib.YELLOW);
+        raylib.DrawText("hello venus!", 100, 100, 20, raylib.YELLOW);
     }
 }
