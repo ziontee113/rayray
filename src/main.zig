@@ -2,7 +2,7 @@ const std = @import("std");
 const raylib = @import("raylib");
 
 pub fn main() !void {
-    raylib.SetConfigFlags(raylib.ConfigFlags{ .FLAG_WINDOW_RESIZABLE = true });
+    raylib.SetConfigFlags(raylib.ConfigFlags{ .FLAG_WINDOW_RESIZABLE = false, .FLAG_WINDOW_TRANSPARENT = true });
     raylib.InitWindow(800, 800, "hello world!");
     raylib.SetTargetFPS(60);
 
@@ -12,9 +12,9 @@ pub fn main() !void {
         raylib.BeginDrawing();
         defer raylib.EndDrawing();
 
-        raylib.ClearBackground(raylib.BLACK);
+        raylib.ClearBackground(raylib.BLANK);
         raylib.DrawFPS(10, 10);
 
-        raylib.DrawText("hello venus!", 100, 100, 20, raylib.YELLOW);
+        raylib.DrawText("FEARLESS", 100, 100, 20, raylib.YELLOW);
     }
 }
