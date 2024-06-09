@@ -1,0 +1,84 @@
+From 5a1c9d07f1d5a206250caa80bcc9e03f4e363c6f Mon Sep 17 00:00:00 2001
+From: ziontee113 <ziontee113@gmail.com>
+Date: Sun, 9 Jun 2024 18:52:58 +0700
+Subject: [PATCH] Fix build for 0.13
+
+---
+ .gitignore    |  1 +
+ src/build.zig | 19 +++++++++++++------
+ 2 files changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/.gitignore b/.gitignore
+index 6ff0e234..fc0cedde 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -101,6 +101,7 @@ GRTAGS
+ GTAGS
+ 
+ # Zig programming language
++.zig-cache/
+ zig-cache/
+ zig-out/
+ build/
+diff --git a/src/build.zig b/src/build.zig
+index 93ffe47a..8342f986 100644
+--- a/src/build.zig
++++ b/src/build.zig
+@@ -116,8 +116,10 @@ pub fn addRaylib(b: *std.Build, target: anytype, optimize: std.builtin.OptimizeM
+                 raylib.linkSystemLibrary("dl");
+                 raylib.linkSystemLibrary("m");
+ 
+-                raylib.addLibraryPath(.{ .path = "/usr/lib" });
+-                raylib.addIncludePath(.{ .path = "/usr/include" });
++                // raylib.addLibraryPath(.{ .path = "/usr/lib" });
++                raylib.addLibraryPath(.{ .cwd_relative = "/usr/lib" });
++                // raylib.addIncludePath(.{ .path = "/usr/include" });
++                raylib.addIncludePath(.{ .cwd_relative = "/usr/include" });
+ 
+                 switch (options.linux_display_backend) {
+                     .X11 => {
+@@ -130,7 +132,8 @@ pub fn addRaylib(b: *std.Build, target: anytype, optimize: std.builtin.OptimizeM
+                         raylib.linkSystemLibrary("wayland-cursor");
+                         raylib.linkSystemLibrary("wayland-egl");
+                         raylib.linkSystemLibrary("xkbcommon");
+-                        raylib.addIncludePath(.{ .path = srcdir });
++                        // raylib.addIncludePath(.{ .path = srcdir });
++                        raylib.addIncludePath(b.path(srcdir));
+                         try waylandGenerate(gpa, "wayland.xml", "wayland-client-protocol");
+                         try waylandGenerate(gpa, "xdg-shell.xml", "xdg-shell-client-protocol");
+                         try waylandGenerate(gpa, "xdg-decoration-unstable-v1.xml", "xdg-decoration-unstable-v1-client-protocol");
+@@ -153,7 +156,8 @@ pub fn addRaylib(b: *std.Build, target: anytype, optimize: std.builtin.OptimizeM
+                 raylib.linkSystemLibrary("rt");
+                 raylib.linkSystemLibrary("m");
+                 raylib.linkSystemLibrary("dl");
+-                raylib.addIncludePath(.{ .path = "/usr/include/libdrm" });
++                // raylib.addIncludePath(.{ .path = "/usr/include/libdrm" });
++                raylib.addIncludePath(b.path("/usr/include//libdrm"));
+ 
+                 raylib.defineCMacro("PLATFORM_DRM", null);
+                 raylib.defineCMacro("GRAPHICS_API_OPENGL_ES2", null);
+@@ -206,7 +210,8 @@ pub fn addRaylib(b: *std.Build, target: anytype, optimize: std.builtin.OptimizeM
+             var dir = std.fs.openDirAbsolute(cache_include, std.fs.Dir.OpenDirOptions{ .access_sub_paths = true, .no_follow = true }) catch @panic("No emscripten cache. Generate it!");
+             dir.close();
+ 
+-            raylib.addIncludePath(.{ .path = cache_include });
++            // raylib.addIncludePath(.{ .path = cache_include });
++            raylib.addIncludePath(b.path(cache_include));
+         },
+         else => {
+             @panic("Unsupported OS");
+@@ -293,8 +298,10 @@ fn addCSourceFilesVersioned(
+     //- HACK(cabarger): I hate this so much!!!
+     if (comptime builtin.zig_version.minor >= 12) {
+         for (files) |file| {
++            const path = std.Build.LazyPath{ .cwd_relative = file };
+             exe.addCSourceFile(.{
+-                .file = .{ .path = file },
++                // .file = .{ .path = file },
++                .file = path,
+                 .flags = flags,
+             });
+         }
+-- 
+2.45.2
+

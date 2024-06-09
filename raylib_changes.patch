@@ -1,0 +1,55 @@
+From 953b02ac4ea79ffca6eb4668feefbcd103d488f0 Mon Sep 17 00:00:00 2001
+From: ziontee113 <ziontee113@gmail.com>
+Date: Sun, 9 Jun 2024 18:49:12 +0700
+Subject: [PATCH] Fix build for 0.13
+
+---
+ .gitignore |  2 ++
+ build.zig  | 15 +++++++++++----
+ 2 files changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/.gitignore b/.gitignore
+index 5bd9db1..ffb50a5 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -52,6 +52,8 @@ Mkfile.old
+ dkms.conf
+ 
+ zig-cache/
++.zig-cache/
++
+ 
+ .vscode/settings.json
+ 
+diff --git a/build.zig b/build.zig
+index a1228df..d13c0c3 100644
+--- a/build.zig
++++ b/build.zig
+@@ -92,13 +92,20 @@ fn linkThisLibrary(b: *std.Build, target: std.Target.Query, optimize: std.builti
+             .name = "raylib.zig",
+             .target = b.resolveTargetQuery(target),
+             .optimize = optimize,
+-            .root_source_file = .{ .path = cwd ++ sep ++ "raylib.zig" },
++            // .root_source_file = .{ .path = cwd ++ sep ++ "raylib.zig" },
++            .root_source_file = .{ .cwd_relative = cwd ++ sep ++ "raylib.zig" },
+         },
+     );
+     lib.linkLibC();
+-    lib.addIncludePath(.{ .path = dir_raylib });
+-    lib.addIncludePath(.{ .path = cwd });
+-    lib.addCSourceFile(.{ .file = .{ .path = cwd ++ sep ++ "marshal.c" }, .flags = &.{} });
++
++    // lib.addIncludePath(.{ .path = dir_raylib });
++    lib.addIncludePath(.{ .cwd_relative = dir_raylib });
++
++    // lib.addIncludePath(.{ .path = cwd });
++    lib.addIncludePath(.{ .cwd_relative = cwd });
++
++    // lib.addCSourceFile(.{ .file = .{ .path = cwd ++ sep ++ "marshal.c" }, .flags = &.{} });
++    lib.addCSourceFile(.{ .file = .{ .cwd_relative = cwd ++ sep ++ "marshal.c" }, .flags = &.{} });
+     std.log.debug("include '{s}' to {s}", .{ dir_raylib, lib.name });
+     std.log.debug("include '{s}' to {s}", .{ cwd, lib.name });
+     return lib;
+-- 
+2.45.2
+
